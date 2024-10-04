@@ -4,6 +4,7 @@ public interface Quantity {
 
     Quantity ZERO = new Zero();
     Quantity ONE = of(1);
+    Quantity TEN = of(10);
 
     int value();
 

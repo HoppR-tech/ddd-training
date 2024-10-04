@@ -26,7 +26,24 @@ public class Basket {
         this.itemsPerId.putAll(itemsPerId);
     }
 
-    public boolean containsItem(ItemId itemId) {
+    private Basket(BasketId id, List<BasketEvent> events) {
+        this.id = id;
+        events.forEach(this::apply);
+    }
+
+    public void apply(BasketEvent event) {
+        switch (event) {
+            case ItemAdded e -> itemsPerId.put(e.itemId(), new Item(e.itemId(), e.quantity()));
+            case QuantityIncreased e -> itemsPerId.put(e.itemId(), new Item(e.itemId(), e.actual()));
+            case QuantityDecreased e -> itemsPerId.put(e.itemId(), new Item(e.itemId(), e.actual()));
+        }
+    }
+
+    public static Basket replay(BasketId basketId, List<BasketEvent> events) {
+        return new Basket(basketId, events);
+    }
+
+    private boolean containsItem(ItemId itemId) {
         return itemsPerId.containsKey(itemId);
     }
 

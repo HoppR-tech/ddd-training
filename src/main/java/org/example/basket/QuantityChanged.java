@@ -1,8 +1,6 @@
 package org.example.basket;
 
-public sealed interface QuantityChanged permits QuantityIncreased, QuantityDecreased {
-
-    BasketId basketId();
+public sealed interface QuantityChanged extends BasketEvent permits QuantityIncreased, QuantityDecreased {
 
     ItemId itemId();
 
