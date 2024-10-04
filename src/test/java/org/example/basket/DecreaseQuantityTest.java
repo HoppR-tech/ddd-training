@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.example.basket.BasketAssertions.assertThat;
+import static org.example.basket.BasketFixtures.BASKET_ID;
 
 @Nested
 class DecreaseQuantityTest {
@@ -12,9 +13,9 @@ class DecreaseQuantityTest {
     @Test
     void item_quantity_is_decreased() {
         ItemId itemId = ItemId.of(1);
-        DecreaseQuantity command = new DecreaseQuantity(itemId, Quantity.of(2));
+        DecreaseQuantity command = new DecreaseQuantity(BASKET_ID, itemId, Quantity.of(2));
 
-        Basket basket = Basket.empty()
+        Basket basket = Basket.empty(BASKET_ID)
                 .with(itemId, Quantity.of(3));
 
         QuantityDecreased occurredEvent = basket.accept(command);
@@ -31,9 +32,9 @@ class DecreaseQuantityTest {
     @Test
     void item_quantity_cannot_be_decreased_more_than_zero() {
         ItemId itemId = ItemId.of(1);
-        DecreaseQuantity command = new DecreaseQuantity(itemId, Quantity.of(3));
+        DecreaseQuantity command = new DecreaseQuantity(BASKET_ID, itemId, Quantity.of(3));
 
-        Basket basket = Basket.empty()
+        Basket basket = Basket.empty(BASKET_ID)
                 .with(itemId, Quantity.of(1));
 
         QuantityDecreased occurredEvent = basket.accept(command);
@@ -50,9 +51,9 @@ class DecreaseQuantityTest {
     @Test
     void item_is_not_present_so_it_can_not_be_decreased() {
         ItemId itemId = ItemId.of(1);
-        DecreaseQuantity command = new DecreaseQuantity(itemId, Quantity.of(3));
+        DecreaseQuantity command = new DecreaseQuantity(BASKET_ID, itemId, Quantity.of(3));
 
-        Basket basket = Basket.empty();
+        Basket basket = Basket.empty(BASKET_ID);
 
         assertThatExceptionOfType(ItemNotFound.class)
                 .isThrownBy(() -> basket.accept(command))

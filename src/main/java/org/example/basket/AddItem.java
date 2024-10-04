@@ -1,9 +1,9 @@
 package org.example.basket;
 
-public record AddItem(ItemId itemId, Quantity quantity) {
+public record AddItem(BasketId basketId, ItemId itemId, Quantity quantity) {
 
-    public AddItem(ItemId itemId) {
-        this(itemId, Quantity.ONE);
+    public AddItem(BasketId basketId, ItemId itemId) {
+        this(basketId, itemId, Quantity.ONE);
     }
 
 }

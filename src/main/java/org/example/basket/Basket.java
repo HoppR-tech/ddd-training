@@ -11,14 +11,18 @@ import java.util.stream.Collectors;
 
 public class Basket {
 
+    private final BasketId id;
     private final Map<ItemId, Item> itemsPerId = new HashMap<>();
 
-    private Basket() {}
+    private Basket(BasketId id) {
+        this.id = id;
+    }
 
-    public Basket(Collection<Item> items) {
+    public Basket(BasketId id, Collection<Item> items) {
         Map<ItemId, Item> itemsPerId = items.stream()
                 .collect(Collectors.toMap(Item::id, Function.identity()));
 
+        this.id = id;
         this.itemsPerId.putAll(itemsPerId);
     }
 
@@ -37,7 +41,7 @@ public class Basket {
         Quantity quantity = command.quantity();
 
         this.itemsPerId.put(itemId, new Item(itemId, quantity));
-        return new ItemAdded(itemId, quantity);
+        return new ItemAdded(id, itemId, quantity);
     }
 
     public QuantityIncreased accept(IncreaseQuantity command) {
@@ -46,7 +50,7 @@ public class Basket {
         Quantity actualQuantity = previousQuantity.increase(command.quantity());
         itemsPerId.put(itemId, new Item(itemId, actualQuantity));
 
-        return new QuantityIncreased(command.itemId(), previousQuantity, actualQuantity);
+        return new QuantityIncreased(id, command.itemId(), previousQuantity, actualQuantity);
     }
 
     public QuantityDecreased accept(DecreaseQuantity command) {
@@ -60,16 +64,16 @@ public class Basket {
         Quantity actualQuantity = previousQuantity.decrease(command.quantity());
         itemsPerId.put(itemId, new Item(itemId, actualQuantity));
 
-        return new QuantityDecreased(command.itemId(), previousQuantity, actualQuantity);
+        return new QuantityDecreased(id, command.itemId(), previousQuantity, actualQuantity);
     }
 
     public Basket with(ItemId itemId, Quantity quantity) {
         List<Item> items = new ArrayList<>(itemsPerId.values());
         items.add(new Item(itemId, quantity));
-        return new Basket(items);
+        return new Basket(id, items);
     }
 
-    public static Basket empty() {
-        return new Basket();
+    public static Basket empty(BasketId id) {
+        return new Basket(id);
     }
 }

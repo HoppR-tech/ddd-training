@@ -4,15 +4,16 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.example.basket.BasketAssertions.assertThat;
+import static org.example.basket.BasketFixtures.BASKET_ID;
 
 @Nested
 class AddAnItemTest {
 
     @Test
     void item_is_added() {
-        Basket basket = Basket.empty();
+        Basket basket = Basket.empty(BASKET_ID);
         ItemId itemId = ItemId.of(1);
-        AddItem command = new AddItem(itemId);
+        AddItem command = new AddItem(BASKET_ID, itemId);
 
         ItemAdded occurredEvent = basket.accept(command);
 
@@ -26,10 +27,10 @@ class AddAnItemTest {
 
     @Test
     void item_is_added_with_a_quantity() {
-        Basket basket = Basket.empty();
+        Basket basket = Basket.empty(BASKET_ID);
         Quantity quantity = Quantity.of(2);
         ItemId itemId = ItemId.of(1);
-        AddItem command = new AddItem(itemId, quantity);
+        AddItem command = new AddItem(BASKET_ID, itemId, quantity);
 
         ItemAdded occurredEvent = basket.accept(command);
 

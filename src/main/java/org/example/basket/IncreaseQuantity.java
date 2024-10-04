@@ -1,4 +1,4 @@
 package org.example.basket;
 
-public record IncreaseQuantity(ItemId itemId, Quantity quantity) {
+public record IncreaseQuantity(BasketId basketId, ItemId itemId, Quantity quantity) {
 }
