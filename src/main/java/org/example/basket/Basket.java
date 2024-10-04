@@ -13,6 +13,7 @@ public class Basket {
 
     private final BasketId id;
     private final Map<ItemId, Item> itemsPerId = new HashMap<>();
+    private final EventStream.Pending pendingEvents = EventStream.Pending.empty();
 
     private Basket(BasketId id) {
         this.id = id;
@@ -26,9 +27,9 @@ public class Basket {
         this.itemsPerId.putAll(itemsPerId);
     }
 
-    private Basket(BasketId id, List<BasketEvent> events) {
+    private Basket(BasketId id, EventStream.History history) {
         this.id = id;
-        events.forEach(this::apply);
+        history.forEach(this::apply);
     }
 
     public void apply(BasketEvent event) {
@@ -39,8 +40,8 @@ public class Basket {
         }
     }
 
-    public static Basket replay(BasketId basketId, List<BasketEvent> events) {
-        return new Basket(basketId, events);
+    public static Basket replay(BasketId basketId, EventStream.History history) {
+        return new Basket(basketId, history);
     }
 
     private boolean containsItem(ItemId itemId) {
@@ -57,17 +58,19 @@ public class Basket {
         ItemId itemId = command.itemId();
         Quantity quantity = command.quantity();
 
-        this.itemsPerId.put(itemId, new Item(itemId, quantity));
-        return new ItemAdded(id, itemId, quantity);
+        ItemAdded decision = new ItemAdded(id, itemId, quantity);
+        pendingAndApply(decision);
+        return decision;
     }
 
     public QuantityIncreased accept(IncreaseQuantity command) {
         ItemId itemId = command.itemId();
         Quantity previousQuantity = quantityOf(itemId);
         Quantity actualQuantity = previousQuantity.increase(command.quantity());
-        itemsPerId.put(itemId, new Item(itemId, actualQuantity));
 
-        return new QuantityIncreased(id, command.itemId(), previousQuantity, actualQuantity);
+        QuantityIncreased decision = new QuantityIncreased(id, command.itemId(), previousQuantity, actualQuantity);
+        pendingAndApply(decision);
+        return decision;
     }
 
     public QuantityDecreased accept(DecreaseQuantity command) {
@@ -79,15 +82,21 @@ public class Basket {
 
         Quantity previousQuantity = quantityOf(itemId);
         Quantity actualQuantity = previousQuantity.decrease(command.quantity());
-        itemsPerId.put(itemId, new Item(itemId, actualQuantity));
 
-        return new QuantityDecreased(id, command.itemId(), previousQuantity, actualQuantity);
+        QuantityDecreased decision = new QuantityDecreased(id, command.itemId(), previousQuantity, actualQuantity);
+        pendingAndApply(decision);
+        return decision;
     }
 
     public Basket with(ItemId itemId, Quantity quantity) {
         List<Item> items = new ArrayList<>(itemsPerId.values());
         items.add(new Item(itemId, quantity));
         return new Basket(id, items);
+    }
+
+    private void pendingAndApply(BasketEvent event) {
+        this.pendingEvents.add(event);
+        apply(event);
     }
 
     public static Basket empty(BasketId id) {
