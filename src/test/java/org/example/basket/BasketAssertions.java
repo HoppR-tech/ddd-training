@@ -1,6 +1,11 @@
 package org.example.basket;
 
 import org.assertj.core.api.Assertions;
+import org.example.basket.add_item.ItemAdded;
+import org.example.basket.change_quantity.QuantityChanged;
+import org.example.basket.model.Basket;
+import org.example.basket.model.ProductRef;
+import org.example.basket.model.Quantity;
 
 public class BasketAssertions {
 
@@ -24,9 +29,13 @@ public class BasketAssertions {
             this.basket = basket;
         }
 
-        public BasketAssert quantityOf(ItemId itemId, int quantity) {
-            Assertions.assertThat(basket.quantityOf(itemId)).isEqualTo(Quantity.of(quantity));
+        public BasketAssert quantityOf(ProductRef productRef, Quantity quantity) {
+            Assertions.assertThat(basket.quantityOf(productRef)).isEqualTo(quantity);
             return this;
+        }
+
+        public BasketAssert quantityOf(ProductRef productRef, int quantity) {
+            return quantityOf(productRef, Quantity.of(quantity));
         }
 
     }
@@ -39,8 +48,8 @@ public class BasketAssertions {
             this.event = event;
         }
 
-        public ItemAddedAssert hasId(ItemId itemId) {
-            Assertions.assertThat(event.itemId()).isEqualTo(itemId);
+        public ItemAddedAssert hasRef(ProductRef productRef) {
+            Assertions.assertThat(event.productRef()).isEqualTo(productRef);
             return this;
         }
 
@@ -59,8 +68,8 @@ public class BasketAssertions {
             this.event = event;
         }
 
-        public QuantityChangedAssert hasId(ItemId itemId) {
-            Assertions.assertThat(event.itemId()).isEqualTo(itemId);
+        public QuantityChangedAssert hasRef(ProductRef productRef) {
+            Assertions.assertThat(event.productRef()).isEqualTo(productRef);
             return this;
         }
 
