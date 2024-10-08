@@ -2,16 +2,16 @@ package org.example.basket.model;
 
 public class Item {
 
-    private final ItemId id;
+    private final ProductRef productRef;
     private final Quantity quantity;
 
-    public Item(ItemId id, Quantity quantity) {
-        this.id = id;
+    public Item(ProductRef productRef, Quantity quantity) {
+        this.productRef = productRef;
         this.quantity = quantity;
     }
 
-    public ItemId id() {
-        return id;
+    public ProductRef productRef() {
+        return productRef;
     }
 
     public Quantity quantity() {

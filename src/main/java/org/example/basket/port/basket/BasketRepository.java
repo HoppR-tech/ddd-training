@@ -1,4 +1,4 @@
-package org.example.basket;
+package org.example.basket.port.basket;
 
 import org.example.basket.model.Basket;
 import org.example.basket.model.BasketId;

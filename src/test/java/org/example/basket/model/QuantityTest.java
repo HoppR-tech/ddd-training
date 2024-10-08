@@ -1,7 +1,5 @@
-package org.example.basket;
+package org.example.basket.model;
 
-import org.example.basket.model.Quantity;
-import org.example.basket.model.QuantityMustBeZeroOrPositive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

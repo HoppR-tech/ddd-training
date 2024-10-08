@@ -1,8 +1,8 @@
 package org.example.basket.model;
 
-public record BasketId(int value) {
+public record BasketId(String value) {
 
-    public static BasketId of(int value) {
+    public static BasketId of(String value) {
         return new BasketId(value);
     }
 

@@ -45,5 +45,9 @@ public interface Quantity {
             return 0;
         }
 
+        @Override
+        public String toString() {
+            return "Quantity.Zero";
+        }
     }
 }

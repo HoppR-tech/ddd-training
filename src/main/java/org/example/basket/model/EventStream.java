@@ -28,7 +28,11 @@ public abstract class EventStream {
         }
 
         public static History of(BasketEvent... events) {
-            return new History(Arrays.asList(events));
+            return of(Arrays.asList(events));
+        }
+
+        public static History of(List<BasketEvent> events) {
+            return new History(events);
         }
 
     }

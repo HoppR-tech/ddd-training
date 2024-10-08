@@ -14,13 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Basket {
 
     private final BasketId id;
-    private final Map<ItemId, Item> itemsPerId = new HashMap<>();
+    private final Map<ProductRef, Item> itemsPerProductRef = new HashMap<>();
     private final EventStream.Pending pendingEvents = EventStream.Pending.empty();
 
     private Basket(BasketId id) {
@@ -28,11 +29,11 @@ public class Basket {
     }
 
     public Basket(BasketId id, Collection<Item> items) {
-        Map<ItemId, Item> itemsPerId = items.stream()
-                .collect(Collectors.toMap(Item::id, Function.identity()));
+        Map<ProductRef, Item> itemsPerId = items.stream()
+                .collect(Collectors.toMap(Item::productRef, Function.identity()));
 
         this.id = id;
-        this.itemsPerId.putAll(itemsPerId);
+        this.itemsPerProductRef.putAll(itemsPerId);
     }
 
     private Basket(BasketId id, EventStream.History history) {
@@ -48,9 +49,9 @@ public class Basket {
 
     public void apply(BasketEvent event) {
         switch (event) {
-            case ItemAdded e -> itemsPerId.put(e.itemId(), new Item(e.itemId(), e.quantity()));
-            case QuantityIncreased e -> itemsPerId.put(e.itemId(), new Item(e.itemId(), e.actual()));
-            case QuantityDecreased e -> itemsPerId.put(e.itemId(), new Item(e.itemId(), e.actual()));
+            case ItemAdded e -> itemsPerProductRef.put(e.productRef(), new Item(e.productRef(), e.quantity()));
+            case QuantityIncreased e -> itemsPerProductRef.put(e.productRef(), new Item(e.productRef(), e.actual()));
+            case QuantityDecreased e -> itemsPerProductRef.put(e.productRef(), new Item(e.productRef(), e.actual()));
         }
     }
 
@@ -58,53 +59,57 @@ public class Basket {
         return id;
     }
 
-    private boolean containsItem(ItemId itemId) {
-        return itemsPerId.containsKey(itemId);
+    public Collection<Item> items() {
+        return Set.copyOf(itemsPerProductRef.values());
     }
 
-    public Quantity quantityOf(ItemId itemId) {
-        return Optional.ofNullable(itemsPerId.get(itemId))
+    private boolean containsItem(ProductRef productRef) {
+        return itemsPerProductRef.containsKey(productRef);
+    }
+
+    public Quantity quantityOf(ProductRef productRef) {
+        return Optional.ofNullable(itemsPerProductRef.get(productRef))
                 .map(Item::quantity)
                 .orElse(Quantity.ZERO);
     }
 
     public ItemAdded accept(AddItem command) {
-        ItemId itemId = command.itemId();
+        ProductRef productRef = command.productRef();
         Quantity quantity = command.quantity();
 
-        ItemAdded decision = new ItemAdded(id, itemId, quantity);
+        ItemAdded decision = new ItemAdded(id, productRef, quantity);
         pendingAndApply(decision);
         return decision;
     }
 
     public QuantityIncreased accept(IncreaseQuantity command) {
-        ItemId itemId = command.itemId();
-        Quantity previousQuantity = quantityOf(itemId);
+        ProductRef productRef = command.productRef();
+        Quantity previousQuantity = quantityOf(productRef);
         Quantity actualQuantity = previousQuantity.increase(command.quantity());
 
-        QuantityIncreased decision = new QuantityIncreased(id, command.itemId(), previousQuantity, actualQuantity);
+        QuantityIncreased decision = new QuantityIncreased(id, command.productRef(), previousQuantity, actualQuantity);
         pendingAndApply(decision);
         return decision;
     }
 
     public QuantityDecreased accept(DecreaseQuantity command) {
-        ItemId itemId = command.itemId();
+        ProductRef itemId = command.productRef();
 
-        if (!containsItem(command.itemId())) {
+        if (!containsItem(command.productRef())) {
             throw new ItemNotFound(itemId);
         }
 
         Quantity previousQuantity = quantityOf(itemId);
         Quantity actualQuantity = previousQuantity.decrease(command.quantity());
 
-        QuantityDecreased decision = new QuantityDecreased(id, command.itemId(), previousQuantity, actualQuantity);
+        QuantityDecreased decision = new QuantityDecreased(id, command.productRef(), previousQuantity, actualQuantity);
         pendingAndApply(decision);
         return decision;
     }
 
-    public Basket with(ItemId itemId, Quantity quantity) {
-        List<Item> items = new ArrayList<>(itemsPerId.values());
-        items.add(new Item(itemId, quantity));
+    public Basket with(ProductRef productRef, Quantity quantity) {
+        List<Item> items = new ArrayList<>(itemsPerProductRef.values());
+        items.add(new Item(productRef, quantity));
         return new Basket(id, items);
     }
 
@@ -127,17 +132,5 @@ public class Basket {
 
     public static Basket replay(BasketId basketId, EventStream.History history) {
         return new Basket(basketId, history);
-    }
-
-    public static EventStream.Pending accept(AddItem command, EventStream.History history) {
-        Basket basket = Basket.replay(command.basketId(), history);
-        basket.accept(command);
-        return basket.pendingEvents;
-    }
-
-    public static EventStream.Pending accept(IncreaseQuantity command, EventStream.History history) {
-        Basket basket = Basket.replay(command.basketId(), history);
-        basket.accept(command);
-        return basket.pendingEvents;
     }
 }

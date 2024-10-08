@@ -1,11 +1,11 @@
 package org.example.basket.change_quantity.decrease;
 
-import org.example.basket.model.ItemId;
+import org.example.basket.model.ProductRef;
 
 public class ItemNotFound extends RuntimeException {
 
-    public ItemNotFound(ItemId itemId) {
-        super("Item '%s' has not been found".formatted(itemId.value()));
+    public ItemNotFound(ProductRef productRef) {
+        super("Item not found for product '%s'".formatted(productRef.value()));
     }
 
 }
