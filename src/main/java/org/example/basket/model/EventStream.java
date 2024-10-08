@@ -1,4 +1,4 @@
-package org.example.basket;
+package org.example.basket.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +47,9 @@ public abstract class EventStream {
             return new Pending(List.of());
         }
 
+        public void addAll(Pending pendingEvents) {
+            pendingEvents.forEach(this::add);
+        }
     }
 
 }

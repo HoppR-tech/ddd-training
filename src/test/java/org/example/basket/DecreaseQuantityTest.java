@@ -1,5 +1,11 @@
 package org.example.basket;
 
+import org.example.basket.change_quantity.decrease.DecreaseQuantity;
+import org.example.basket.change_quantity.decrease.ItemNotFound;
+import org.example.basket.change_quantity.decrease.QuantityDecreased;
+import org.example.basket.model.Basket;
+import org.example.basket.model.ItemId;
+import org.example.basket.model.Quantity;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

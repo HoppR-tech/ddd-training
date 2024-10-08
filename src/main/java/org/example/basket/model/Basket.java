@@ -1,4 +1,12 @@
-package org.example.basket;
+package org.example.basket.model;
+
+import org.example.basket.add_item.AddItem;
+import org.example.basket.add_item.ItemAdded;
+import org.example.basket.change_quantity.decrease.DecreaseQuantity;
+import org.example.basket.change_quantity.decrease.ItemNotFound;
+import org.example.basket.change_quantity.decrease.QuantityDecreased;
+import org.example.basket.change_quantity.increase.IncreaseQuantity;
+import org.example.basket.change_quantity.increase.QuantityIncreased;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +40,12 @@ public class Basket {
         history.forEach(this::apply);
     }
 
+    private Basket(BasketId id, EventStream.Pending pendingEvents) {
+        this.id = id;
+        this.pendingEvents.addAll(pendingEvents);
+        this.pendingEvents.forEach(this::apply);
+    }
+
     public void apply(BasketEvent event) {
         switch (event) {
             case ItemAdded e -> itemsPerId.put(e.itemId(), new Item(e.itemId(), e.quantity()));
@@ -40,8 +54,8 @@ public class Basket {
         }
     }
 
-    public static Basket replay(BasketId basketId, EventStream.History history) {
-        return new Basket(basketId, history);
+    public BasketId id() {
+        return id;
     }
 
     private boolean containsItem(ItemId itemId) {
@@ -101,5 +115,29 @@ public class Basket {
 
     public static Basket empty(BasketId id) {
         return new Basket(id);
+    }
+
+    public EventStream.Pending pendingEvents() {
+        return pendingEvents;
+    }
+
+    public static Basket create(BasketId basketId, EventStream.Pending pendingEvents) {
+        return new Basket(basketId, pendingEvents);
+    }
+
+    public static Basket replay(BasketId basketId, EventStream.History history) {
+        return new Basket(basketId, history);
+    }
+
+    public static EventStream.Pending accept(AddItem command, EventStream.History history) {
+        Basket basket = Basket.replay(command.basketId(), history);
+        basket.accept(command);
+        return basket.pendingEvents;
+    }
+
+    public static EventStream.Pending accept(IncreaseQuantity command, EventStream.History history) {
+        Basket basket = Basket.replay(command.basketId(), history);
+        basket.accept(command);
+        return basket.pendingEvents;
     }
 }

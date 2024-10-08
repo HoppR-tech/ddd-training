@@ -1,5 +1,8 @@
 package org.example.basket;
 
+import org.example.basket.model.Basket;
+import org.example.basket.model.BasketId;
+
 public interface BasketRepository {
 
     Basket findById(BasketId basketId);

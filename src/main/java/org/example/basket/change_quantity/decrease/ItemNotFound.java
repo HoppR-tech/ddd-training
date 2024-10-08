@@ -1,4 +1,6 @@
-package org.example.basket;
+package org.example.basket.change_quantity.decrease;
+
+import org.example.basket.model.ItemId;
 
 public class ItemNotFound extends RuntimeException {
 

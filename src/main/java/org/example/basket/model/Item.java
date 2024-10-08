@@ -1,4 +1,4 @@
-package org.example.basket;
+package org.example.basket.model;
 
 public class Item {
 

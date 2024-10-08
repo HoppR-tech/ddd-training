@@ -1,5 +1,11 @@
 package org.example.basket;
 
+import org.example.basket.add_item.ItemAdded;
+import org.example.basket.change_quantity.decrease.QuantityDecreased;
+import org.example.basket.change_quantity.increase.QuantityIncreased;
+import org.example.basket.model.Basket;
+import org.example.basket.model.EventStream;
+import org.example.basket.model.Quantity;
 import org.junit.jupiter.api.Test;
 
 import static org.example.basket.BasketAssertions.assertThat;

@@ -1,4 +1,8 @@
-package org.example.basket;
+package org.example.basket.add_item;
+
+import org.example.basket.model.Basket;
+import org.example.basket.BasketRepository;
+import org.example.basket.StockSPI;
 
 public class AddItemUseCase {
 
